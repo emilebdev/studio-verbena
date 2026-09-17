@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio Verbena — Agende seu horário</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;0,500;1,400&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF0E7;
+    --surface: #E3E6D8;
+    --surface-2: #FBFAF6;
+    --text: #23261B;
+    --muted: #6B715C;
+    --accent: #7C8A5E;
+    --accent-deep: #566143;
+    --line: #D3D8C4;
+    --focus: #566143;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1E211A;
+      --surface: #262A1F;
+      --surface-2: #21241B;
+      --text: #EDF0E4;
+      --muted: #9CA48A;
+      --accent: #A6B589;
+      --accent-deep: #C3D1A5;
+      --line: #363B2C;
+      --focus: #C3D1A5;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #1E211A;
+    --surface: #262A1F;
+    --surface-2: #21241B;
+    --text: #EDF0E4;
+    --muted: #9CA48A;
+    --accent: #A6B589;
+    --accent-deep: #C3D1A5;
+    --line: #363B2C;
+    --focus: #C3D1A5;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Work Sans', ui-sans-serif, system-ui, sans-serif;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3 { font-family: 'Newsreader', ui-serif, Georgia, serif; font-weight: 500; line-height: 1.15; }
+
+  a { color: inherit; }
+  :focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+
+  /* Disclaimer strip */
+  .disclaimer {
+    background: var(--accent-deep);
+    color: var(--bg);
+    text-align: center;
+    font-size: 0.78rem;
+    padding: 8px 16px;
+  }
+
+  header {
+    border-bottom: 1px solid var(--line);
+    padding: 22px 0;
+  }
+  .nav { display: flex; justify-content: space-between; align-items: center; }
+  .logo { font-family: 'Newsreader', serif; font-style: italic; font-size: 1.4rem; }
+  .nav-links { display: none; gap: 30px; color: var(--muted); font-size: 0.92rem; }
+  @media (min-width: 760px) { .nav-links { display: flex; } }
+  .nav-links a { text-decoration: none; }
+  .nav-links a:hover { color: var(--text); }
+
+  /* Hero + booking */
+  .hero {
+    padding: 64px 0 90px;
+    display: grid;
+    gap: 48px;
+  }
+  @media (min-width: 900px) {
+    .hero { grid-template-columns: 0.95fr 1.05fr; align-items: start; padding: 90px 0 110px; }
+  }
+
+  .hero h1 { font-size: clamp(2.1rem, 4.6vw, 3.1rem); max-width: 13ch; }
+  .hero > div:first-child p { color: var(--muted); margin-top: 20px; max-width: 42ch; font-size: 1.03rem; }
+
+  .swatches { display: flex; gap: 10px; margin-top: 32px; }
+  .swatch { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--line); }
+
+  /* Booking card */
+  .booking-card {
+    background: var(--surface-2);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 30px;
+  }
+  .booking-card h2 { font-size: 1.3rem; margin-bottom: 4px; }
+  .booking-card > p { color: var(--muted); font-size: 0.88rem; margin-bottom: 24px; }
+
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-bottom: 7px;
+  }
+  .field select, .field input {
+    width: 100%;
+    padding: 11px 12px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 0.95rem;
+  }
+
+  .slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .slot-btn {
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    color: var(--text);
+    font-size: 0.86rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .slot-btn:hover { border-color: var(--accent); }
+  .slot-btn.selected { background: var(--accent-deep); color: var(--bg); border-color: var(--accent-deep); }
+  .slot-empty { color: var(--muted); font-size: 0.85rem; }
+
+  .btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent-deep);
+    color: var(--bg);
+    border: none;
+    border-radius: 4px;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  .btn:hover { background: var(--accent); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .confirm-box {
+    margin-top: 20px;
+    padding: 16px;
+    background: var(--surface);
+    border-left: 3px solid var(--accent-deep);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    display: none;
+  }
+  .confirm-box.show { display: block; }
+  .confirm-box strong { font-family: 'Newsreader', serif; font-size: 1.05rem; display: block; margin-bottom: 6px; }
+
+  .my-bookings { margin-top: 28px; }
+  .my-bookings h3 { font-size: 0.95rem; color: var(--muted); font-weight: 500; margin-bottom: 12px; font-family: 'Work Sans', sans-serif; }
+  .booking-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.86rem;
+  }
+  .booking-item button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: inherit;
+  }
+  .booking-item button:hover { color: var(--text); }
+
+  /* Services */
+  .section { padding: 78px 0; border-top: 1px solid var(--line); }
+  .section-head { max-width: 50ch; margin-bottom: 44px; }
+  .section-head h2 { font-size: clamp(1.6rem, 3vw, 2.2rem); }
+  .section-head p { color: var(--muted); margin-top: 12px; }
+
+  .service-grid {
+    display: grid;
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  @media (min-width: 700px) { .service-grid { grid-template-columns: repeat(2, 1fr); } }
+
+  .service-item {
+    background: var(--surface-2);
+    padding: 24px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .service-dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .service-item h3 { font-size: 1.05rem; margin-bottom: 4px; }
+  .service-item p { color: var(--muted); font-size: 0.86rem; }
+  .service-item .price { color: var(--accent-deep); font-weight: 600; font-size: 0.9rem; margin-top: 8px; }
+
+  /* Info */
+  .info-grid { display: grid; gap: 36px; }
+  @media (min-width: 760px) { .info-grid { grid-template-columns: 1fr 1fr; } }
+  .info-grid h3 { font-size: 1rem; color: var(--accent-deep); margin-bottom: 14px; }
+  .hours-row { display: flex; justify-content: space-between; padding: 7px 0; font-size: 0.9rem; border-bottom: 1px solid var(--line); }
+  .hours-row span:first-child { color: var(--muted); }
+  address { font-style: normal; color: var(--muted); font-size: 0.92rem; line-height: 1.7; }
+
+  footer { border-top: 1px solid var(--line); padding: 34px 0; color: var(--muted); font-size: 0.85rem; }
+</style>
+</head>
+<body>
+
+<div class="disclaimer">Projeto conceitual — nome, endereço e agendamentos são fictícios, criados como amostra de portfólio.</div>
+
+<header>
+  <div class="wrap nav">
+    <div class="logo">Studio Verbena</div>
+    <nav class="nav-links">
+      <a href="#servicos">Serviços</a>
+      <a href="#local">Studio</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero wrap">
+  <div>
+    <h1>Cuidado com hora marcada, sem espera na porta</h1>
+    <p>Manicure, extensão de cílios e design de sobrancelha em um espaço pensado pra você relaxar. Escolha o serviço e o horário ao lado — a confirmação é na hora.</p>
+    <div class="swatches" aria-hidden="true">
+      <div class="swatch" style="background:#C98A6B"></div>
+      <div class="swatch" style="background:#B7A5D6"></div>
+      <div class="swatch" style="background:#7C8A5E"></div>
+      <div class="swatch" style="background:#D6B3A5"></div>
+      <div class="swatch" style="background:#8FA3B0"></div>
+    </div>
+  </div>
+
+  <div class="booking-card">
+    <h2>Agendar horário</h2>
+    <p>Escolha o serviço, a data e um horário disponível.</p>
+
+    <div class="field">
+      <label for="service">Serviço</label>
+      <select id="service">
+        <option value="Manicure — R$ 45">Manicure — R$ 45</option>
+        <option value="Pedicure — R$ 50">Pedicure — R$ 50</option>
+        <option value="Extensão de cílios — R$ 120">Extensão de cílios — R$ 120</option>
+        <option value="Design de sobrancelha — R$ 35">Design de sobrancelha — R$ 35</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="date">Data</label>
+      <input type="date" id="date">
+    </div>
+
+    <div class="field">
+      <label>Horário</label>
+      <div class="slots" id="slots">
+        <span class="slot-empty">Escolha uma data para ver horários disponíveis.</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="name">Nome</label>
+      <input type="text" id="name" placeholder="Seu nome">
+    </div>
+
+    <div class="field">
+      <label for="phone">WhatsApp</label>
+      <input type="tel" id="phone" placeholder="(85) 90000-0000">
+    </div>
+
+    <button class="btn" id="submit-btn">Confirmar agendamento</button>
+
+    <div class="confirm-box" id="confirm-box"></div>
+
+    <div class="my-bookings" id="my-bookings-wrap" style="display:none;">
+      <h3>Seus agendamentos</h3>
+      <div id="my-bookings"></div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="servicos">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Serviços</h2>
+      <p>Todos os procedimentos incluem avaliação rápida antes de começar.</p>
+    </div>
+    <div class="service-grid">
+      <div class="service-item">
+        <div class="service-dot" style="background:#C98A6B"></div>
+        <div>
+          <h3>Manicure</h3>
+          <p>Esmaltação tradicional ou em gel, cutilagem incluída.</p>
+          <div class="price">R$ 45 · 45 min</div>
+        </div>
+      </div>
+      <div class="service-item">
+        <div class="service-dot" style="background:#8FA3B0"></div>
+        <div>
+          <h3>Pedicure</h3>
+          <p>Hidratação e esmaltação, com esfoliação leve.</p>
+          <div class="price">R$ 50 · 50 min</div>
+        </div>
+      </div>
+      <div class="service-item">
+        <div class="service-dot" style="background:#B7A5D6"></div>
+        <div>
+          <h3>Extensão de cílios</h3>
+          <p>Fio a fio, efeito natural ou volume russo.</p>
+          <div class="price">R$ 120 · 90 min</div>
+        </div>
+      </div>
+      <div class="service-item">
+        <div class="service-dot" style="background:#7C8A5E"></div>
+        <div>
+          <h3>Design de sobrancelha</h3>
+          <p>Henna ou linha, com correção de simetria.</p>
+          <div class="price">R$ 35 · 30 min</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="local">
+  <div class="wrap info-grid">
+    <div>
+      <h3>Funcionamento</h3>
+      <div class="hours-row"><span>Terça a sexta</span><span>9h às 18h</span></div>
+      <div class="hours-row"><span>Sábado</span><span>9h às 15h</span></div>
+      <div class="hours-row"><span>Domingo e segunda</span><span>Fechado</span></div>
+    </div>
+    <div>
+      <h3>Endereço</h3>
+      <address>Rua Exemplo, 000 — Meireles<br>Fortaleza, CE<br><br>Studio conceitual — não é um endereço real.</address>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">Studio Verbena — projeto de portfólio, sem vínculo com estabelecimento real.</div>
+</footer>
+
+<script>
+(function () {
+  var serviceEl = document.getElementById('service');
+  var dateEl = document.getElementById('date');
+  var slotsEl = document.getElementById('slots');
+  var nameEl = document.getElementById('name');
+  var phoneEl = document.getElementById('phone');
+  var submitBtn = document.getElementById('submit-btn');
+  var confirmBox = document.getElementById('confirm-box');
+  var myBookingsWrap = document.getElementById('my-bookings-wrap');
+  var myBookingsEl = document.getElementById('my-bookings');
+
+  var selectedSlot = null;
+  var STORAGE_KEY = 'verbena_bookings_demo';
+
+  function todayStr() {
+    var d = new Date();
+    return d.toISOString().slice(0, 10);
+  }
+
+  function loadBookings() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function saveBookings(list) {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+    } catch (e) { /* storage unavailable, demo still works this session */ }
+  }
+
+  function weekday(dateStr) {
+    var d = new Date(dateStr + 'T00:00:00');
+    return d.getDay(); // 0 = domingo
+  }
+
+  function slotsForDate(dateStr) {
+    if (!dateStr) return [];
+    var day = weekday(dateStr);
+    if (day === 0 || day === 1) return []; // fechado domingo/segunda
+    var start = 9, end = (day === 6) ? 15 : 18;
+    var slots = [];
+    for (var h = start; h < end; h++) {
+      slots.push(h + ':00');
+      slots.push(h + ':40');
+    }
+    return slots;
+  }
+
+  function renderSlots() {
+    var dateStr = dateEl.value;
+    selectedSlot = null;
+    slotsEl.innerHTML = '';
+
+    if (!dateStr) {
+      slotsEl.innerHTML = '<span class="slot-empty">Escolha uma data para ver horários disponíveis.</span>';
+      return;
+    }
+
+    var all = slotsForDate(dateStr);
+    if (all.length === 0) {
+      slotsEl.innerHTML = '<span class="slot-empty">Fechado nesse dia — escolha terça a sábado.</span>';
+      return;
+    }
+
+    var booked = loadBookings().filter(function (b) { return b.date === dateStr; }).map(function (b) { return b.time; });
+
+    var isToday = dateStr === todayStr();
+    var now = new Date();
+    var nowMinutes = now.getHours() * 60 + now.getMinutes();
+
+    var available = all.filter(function (t) {
+      if (booked.indexOf(t) !== -1) return false;
+      if (isToday) {
+        var parts = t.split(':');
+        var mins = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+        if (mins <= nowMinutes) return false;
+      }
+      return true;
+    });
+
+    if (available.length === 0) {
+      slotsEl.innerHTML = '<span class="slot-empty">Sem horários livres nesse dia. Tente outra data.</span>';
+      return;
+    }
+
+    available.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'slot-btn';
+      b.textContent = t;
+      b.addEventListener('click', function () {
+        selectedSlot = t;
+        Array.prototype.forEach.call(slotsEl.querySelectorAll('.slot-btn'), function (el) {
+          el.classList.remove('selected');
+        });
+        b.classList.add('selected');
+      });
+      slotsEl.appendChild(b);
+    });
+  }
+
+  function renderMyBookings() {
+    var list = loadBookings();
+    if (list.length === 0) {
+      myBookingsWrap.style.display = 'none';
+      return;
+    }
+    myBookingsWrap.style.display = 'block';
+    myBookingsEl.innerHTML = '';
+    list
+      .sort(function (a, b) { return (a.date + a.time).localeCompare(b.date + b.time); })
+      .forEach(function (b, idx) {
+        var row = document.createElement('div');
+        row.className = 'booking-item';
+        var label = document.createElement('span');
+        label.textContent = b.service + ' — ' + formatDate(b.date) + ' às ' + b.time;
+        var cancel = document.createElement('button');
+        cancel.type = 'button';
+        cancel.textContent = 'Cancelar';
+        cancel.addEventListener('click', function () {
+          var current = loadBookings();
+          current.splice(current.indexOf(b), 1);
+          saveBookings(current);
+          renderMyBookings();
+          renderSlots();
+        });
+        row.appendChild(label);
+        row.appendChild(cancel);
+        myBookingsEl.appendChild(row);
+      });
+  }
+
+  function formatDate(dateStr) {
+    var d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+  }
+
+  dateEl.min = todayStr();
+  dateEl.addEventListener('change', renderSlots);
+
+  submitBtn.addEventListener('click', function () {
+    confirmBox.classList.remove('show');
+
+    if (!dateEl.value) { alert('Escolha uma data.'); return; }
+    if (!selectedSlot) { alert('Escolha um horário disponível.'); return; }
+    if (!nameEl.value.trim()) { alert('Preencha seu nome.'); nameEl.focus(); return; }
+    if (!phoneEl.value.trim()) { alert('Preencha seu WhatsApp.'); phoneEl.focus(); return; }
+
+    var booking = {
+      service: serviceEl.value,
+      date: dateEl.value,
+      time: selectedSlot,
+      name: nameEl.value.trim(),
+      phone: phoneEl.value.trim()
+    };
+
+    var list = loadBookings();
+    list.push(booking);
+    saveBookings(list);
+
+    confirmBox.innerHTML = '<strong>Agendamento confirmado</strong>' +
+      booking.service + '<br>' +
+      formatDate(booking.date) + ' às ' + booking.time + '<br>' +
+      'Em nome de ' + booking.name;
+    confirmBox.classList.add('show');
+
+    nameEl.value = '';
+    phoneEl.value = '';
+    renderSlots();
+    renderMyBookings();
+  });
+
+  renderSlots();
+  renderMyBookings();
+})();
+</script>
+
+</body>
+</html>
